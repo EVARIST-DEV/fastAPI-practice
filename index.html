@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>EVARIST-DEV AI Chat</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 600px; margin: 40px auto; padding: 20px; background: #f4f4f9; }
+        #chat-box { background: white; padding: 20px; border-radius: 8px; height: 300px; overflow-y: scroll; border: 1px solid #ccc; margin-bottom: 20px; }
+        input[type="text"] { width: 80%; padding: 10px; font-size: 16px; }
+        button { padding: 10px 20px; font-size: 16px; background: #007bff; color: white; border: none; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <h2>EVARIST-DEV Local LLM Gateway</h2>
+    <div id="chat-box"></div>
+    <input type="text" id="user-prompt" placeholder="Ask a question..." />
+    <button onclick="askLLM()">Send</button>
+
+    <script>
+        async function askLLM() {
+            const promptInput = document.getElementById("user-prompt");
+            const chatBox = document.getElementById("chat-box");
+            const prompt = promptInput.value;
+            if (!prompt) return;
+
+            chatBox.innerHTML += `<p><b>You:</b> ${prompt}</p>`;
+            promptInput.value = "";
+
+            try {
+                const response = await fetch("http://127.0.0.1:8000/v1/generate", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ prompt: prompt, max_tokens: 300, temperature: 0.7 })
+                });
+
+                const data = await response.json();
+                chatBox.innerHTML += `<p><b>EvaristAI:</b> ${data.response_text}</p>`;
+                chatBox.scrollTop = chatBox.scrollHeight;
+            } catch (error) {
+                chatBox.innerHTML += `<p style="color: red;"><b>Error:</b> Could not reach local server.</p>`;
+            }
+        }
+    </script>
+</body>
+</html>
